@@ -2,16 +2,14 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import google.generativeai as genai
-import os
 import logging
 from .models import ChatMessage
 from django.core.serializers import serialize
-import json
 
-# Set up logging
+
+
 logger = logging.getLogger(__name__)
 
-# Configure Google AI with your API key
 genai.configure(api_key="AIzaSyAx_FIJo5OObJdg4aiNeHxfutPbHraZomE")
 
 def chat_page(request):
@@ -60,32 +58,24 @@ def get_response(request):
             logger.info(f"Processing request for message: {user_input}")
             
             try:
-                # Use Google's Generative AI model - try different model names
                 try:
-                    # Try gemini-1.5-flash first (newer model)
                     model = genai.GenerativeModel('gemini-1.5-flash')
                     response = model.generate_content(user_input)
                     reply = response.text
                 except:
                     try:
-                        # Try gemini-1.5-pro
                         model = genai.GenerativeModel('gemini-1.5-pro')
                         response = model.generate_content(user_input)
                         reply = response.text
                     except:
-                        # Try gemini-pro
                         model = genai.GenerativeModel('gemini-pro')
                         response = model.generate_content(user_input)
                         reply = response.text
                 
-                # Ensure proper formatting for markdown rendering
                 if reply:
-                    # Clean up the response for better markdown rendering
                     reply = reply.strip()
-                    # Ensure proper line breaks for lists and sections
                     reply = reply.replace('\n\n', '\n').replace('\n\n\n', '\n\n')
                 
-                # Save the conversation to database
                 try:
                     chat_message = ChatMessage.objects.create(
                         user_message=user_input,

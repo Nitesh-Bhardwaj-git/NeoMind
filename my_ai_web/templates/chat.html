@@ -71,7 +71,6 @@
       overflow-wrap: break-word;
     }
     
-    /* Improved chat box scrolling */
     #chat-box {
       scrollbar-width: thin;
       scrollbar-color: #cbd5e1 #f1f5f9;
@@ -95,14 +94,12 @@
       background: #94a3b8;
     }
     
-    /* Ensure messages are fully visible */
     .message-item {
       margin-bottom: 1rem;
       padding: 0.5rem;
       border-radius: 0.5rem;
     }
     
-    /* Better spacing between messages */
     .message-item:last-child {
       margin-bottom: 0;
     }
@@ -128,7 +125,6 @@
       </div>
     </div>
     
-    <!-- Navigation buttons for long conversations -->
     <div id="navigation-buttons" class="hidden mb-3 flex justify-center gap-2">
       <button onclick="scrollToTop()" 
         class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg transition-colors text-sm">
@@ -148,7 +144,6 @@
     </div>
     
     <div id="chat-box" class="flex-1 overflow-y-auto border p-3 rounded mb-4" style="scroll-behavior: smooth; min-height: 24rem; max-height: 60vh;">
-      <!-- Chat messages will appear here -->
       <div class="text-center text-gray-500 mt-20">
         <p>👋 Welcome to your AI Assistant!</p>
         <p class="text-sm mt-2">Start typing to begin a new conversation.</p>
@@ -168,28 +163,22 @@
   <script>
     let chatHistory = [];
 
-    // Function to format AI response using markdown
     function formatAIResponse(response) {
       try {
-        // Configure marked options for better rendering
         marked.setOptions({
-          breaks: true,        // Convert \n to <br>
-          gfm: true,          // GitHub Flavored Markdown
-          sanitize: false,    // Allow HTML (safe for our use case)
-          smartLists: true,   // Better list formatting
-          smartypants: true   // Better typography
+          breaks: true,       
+          gfm: true,          
+          sanitize: false,    
+          smartLists: true,   
+          smartypants: true   
         });
-        
-        // Render the markdown
-        return marked.parse(response);
+                return marked.parse(response);
       } catch (error) {
         console.error('Error parsing markdown:', error);
-        // Fallback to basic formatting if markdown fails
         return response.replace(/\n/g, '<br>');
       }
     }
 
-    // Navigation functions
     function scrollToTop() {
       const chatBox = document.getElementById('chat-box');
       chatBox.scrollTo({
@@ -218,7 +207,6 @@
       console.log('Scrolling to middle');
     }
 
-    // Show/hide navigation buttons based on message count
     function updateNavigationVisibility() {
       const navButtons = document.getElementById('navigation-buttons');
       const messageCount = document.getElementById('message-count');
@@ -231,14 +219,10 @@
       }
     }
 
-    // Load chat history when page loads
     window.onload = function() {
-      // Always start with fresh chat - no automatic history loading
-      // This ensures every visit gives a clean, new conversation interface
       resetToFreshChat();
     };
 
-    // Function to reset to fresh chat interface
     function resetToFreshChat() {
       const chatBox = document.getElementById('chat-box');
       chatBox.innerHTML = `
@@ -250,10 +234,8 @@
         </div>
       `;
       
-      // Hide navigation buttons for fresh start
       document.getElementById('navigation-buttons').classList.add('hidden');
       
-      // Reset chat history array
       chatHistory = [];
       
       console.log('Fresh chat interface loaded');
@@ -309,10 +291,8 @@
       
       chatBox.innerHTML = html;
       
-      // Ensure we can scroll to see all content
       chatBox.scrollTop = chatBox.scrollHeight;
       
-      // Log the actual content height for debugging
       console.log('Chat box scroll height:', chatBox.scrollHeight);
       console.log('Chat box client height:', chatBox.clientHeight);
       console.log('Total messages displayed:', chatHistory.length);
@@ -353,42 +333,29 @@
 
       const chatBox = document.getElementById("chat-box");
       
-      // Add user message
       chatBox.innerHTML += `<div class="message-item"><div class="mb-2 p-2 bg-blue-100 rounded-lg"><b>You:</b> <div class="message-content">${msg}</div></div></div>`;
-      
-      // Clear input
-      input.value = "";
-      
-      // Show loading indicator
+      input.value = "";     
       chatBox.innerHTML += `<div class="message-item"><div class="mb-2 p-2 bg-gray-100 rounded-lg"><b>AI:</b> <span class="text-gray-500">Thinking...</span></div></div>`;
-      
-      // Scroll to show the new content
+    
       chatBox.scrollTop = chatBox.scrollHeight;
 
       try {
         const response = await fetch(`/get_response?message=${encodeURIComponent(msg)}`);
         const data = await response.json();
         
-        // Remove loading indicator and add AI response with formatting
         chatBox.innerHTML = chatBox.innerHTML.replace(
           /<div class="message-item"><div class="mb-2 p-2 bg-gray-100 rounded-lg"><b>AI:<\/b> <span class="text-gray-500">Thinking...<\/span><\/div><\/div>/,
           `<div class="message-item"><div class="mb-2 p-2 bg-green-100 rounded-lg"><b>AI:</b> <div class="ai-response message-content">${formatAIResponse(data.response)}</div></div></div>`
         );
         
-        // Don't automatically reload chat history - keep fresh chat experience
-        // loadChatHistory();
-        
-        // Show navigation buttons if we have messages
+      
         updateNavigationVisibility();
-        
-        // Scroll to show the complete response
+      
         chatBox.scrollTop = chatBox.scrollHeight;
-        
-        // Log scroll information for debugging
+      
         console.log('After message - Scroll height:', chatBox.scrollHeight, 'Client height:', chatBox.clientHeight);
         
       } catch (error) {
-        // Remove loading indicator and show error
         chatBox.innerHTML = chatBox.innerHTML.replace(
           /<div class="message-item"><div class="mb-2 p-2 bg-gray-100 rounded-lg"><b>AI:<\/b> <span class="text-gray-500">Thinking...<\/span><\/div><\/div>/,
           `<div class="message-item"><div class="mb-2 p-2 bg-red-100 rounded-lg"><b>AI:</b> <span class="text-red-500">Error: ${error.message}</span></div></div>`
@@ -398,26 +365,21 @@
       chatBox.scrollTop = chatBox.scrollHeight;
     }
 
-    // Allow Enter key to send message
     document.getElementById("user-input").addEventListener("keypress", function(event) {
       if (event.key === "Enter") {
         sendMessage();
       }
     });
 
-    // Add keyboard shortcuts for navigation
     document.addEventListener('keydown', function(event) {
-      // Ctrl + Up Arrow = Scroll to Top
       if (event.ctrlKey && event.key === 'ArrowUp') {
         event.preventDefault();
         scrollToTop();
       }
-      // Ctrl + Down Arrow = Scroll to Bottom
       else if (event.ctrlKey && event.key === 'ArrowDown') {
         event.preventDefault();
         scrollToBottom();
       }
-      // Ctrl + M = Scroll to Middle
       else if (event.ctrlKey && event.key === 'm') {
         event.preventDefault();
         scrollToMiddle();
